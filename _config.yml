@@ -46,6 +46,6 @@ plugins:
 defaults:
   -
     scope:
-      path: "lecture*.md"
+      path: "index.md"
     values:
-      layout: "lecture.html"
+      layout: "index.html"
