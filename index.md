@@ -6,6 +6,6 @@ Hello this is a webpage example
 * j
 * h
 
-![pic](https://uiuc-ischool-dataviz.github.io/spring2019online/week04/data/littleCorgiInHat.png)
+![pic](https://pablomartinezpancorbo.files.wordpress.com/2020/04/me-diamond.png)
 
 ![myphoto](https://github.com/PabloMartinezPancorbo/pablomartinezpancorbo.github.io/blob/main/MonsterHunterWorld-13.jpg?raw=true)
