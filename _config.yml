@@ -7,6 +7,22 @@ thumbnail: !(https://pablomartinezpancorbo.files.wordpress.com/2017/08/cropped-p
 show_downloads: True
 google_analytics: a133550646w193419335p189010297
 
+# This will require each of these plugins automatically.
+plugins:
+  - jekyll-gist
+  - jekyll-coffeescript
+  - jekyll-assets
+  - another-jekyll-plugin
+
+gem install jekyll-gist jekyll-coffeescript jekyll-assets another-jekyll-plugin
+
+group :jekyll_plugins do
+  gem "jekyll-gist"
+  gem "jekyll-coffeescript"
+  gem "jekyll-assets"
+  gem "another-jekyll-plugin"
+end
+
 # Build settings
 markdown: kramdown
 markdown_ext: "markdown,mkdown,mkdn,mkd,md"
