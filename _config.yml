@@ -2,6 +2,7 @@ theme: jekyll-theme-dinky
 title: Dr Pablo Martinez Pancorbo
 email: pablomartinezpancorbo@gmail.com
 github_username:  pablomartinezpancorbo
+thumbnail: !(https://pablomartinezpancorbo.files.wordpress.com/2017/08/cropped-p1.png?w=200)
 
 show_downloads: True
 google_analytics: a133550646w193419335p189010297
