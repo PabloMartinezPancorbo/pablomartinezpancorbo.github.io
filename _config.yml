@@ -14,8 +14,6 @@ plugins:
   - jekyll-assets
   - another-jekyll-plugin
 
-gem install jekyll-gist jekyll-coffeescript jekyll-assets another-jekyll-plugin
-
 group :jekyll_plugins do
   gem "jekyll-gist"
   gem "jekyll-coffeescript"
