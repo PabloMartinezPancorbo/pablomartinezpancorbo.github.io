@@ -14,13 +14,6 @@ plugins:
   - jekyll-assets
   - another-jekyll-plugin
 
-group :jekyll_plugins do
-  gem "jekyll-gist"
-  gem "jekyll-coffeescript"
-  gem "jekyll-assets"
-  gem "another-jekyll-plugin"
-end
-
 # Build settings
 markdown: kramdown
 markdown_ext: "markdown,mkdown,mkdn,mkd,md"
