@@ -3,8 +3,8 @@ title: Dr Pablo Martinez Pancorbo
 email: pablomartinezpancorbo@gmail.com
 github_username:  pablomartinezpancorbo
 
-show_downloads: ["true" or "false" to indicate whether to provide a download URL]
-google_analytics: [Your Google Analytics tracking ID]
+show_downloads: True
+google_analytics: a133550646w193419335p189010297
 
 # Build settings
 markdown: kramdown
