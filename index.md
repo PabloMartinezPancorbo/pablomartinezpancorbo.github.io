@@ -1,4 +1,4 @@
-# Portfolio (in construction)
+# Portfolio (under construction)
 ## Machine Learning
 ## Deep Learning
 ## Virtual Reality
