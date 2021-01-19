@@ -1,4 +1,4 @@
-# Portfolio (under construction, meanwhile use https://pablomartinezpancorbo.wordpress.com/)
+# Portfolio (under construction, meanwhile click [here](https://pablomartinezpancorbo.wordpress.com/))
 ## Machine Learning
 [ML Projects](https://github.com/PabloMartinezPancorbo/pablomartinezpancorbo.github.io/tree/main/Machine_Learning)
 ## Deep Learning
