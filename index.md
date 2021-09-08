@@ -4,8 +4,8 @@
 ## Deep Learning
 [AI Projects](https://github.com/PabloMartinezPancorbo/pablomartinezpancorbo.github.io/tree/PabloMartinezPancorbo-Projects/Files/Deep%20Learning)
 ## Virtual Reality
-* Set up
-* Testing
+* Game Development
+* Virtual Experiences
 
 ![pic](https://pablomartinezpancorbo.files.wordpress.com/2020/04/me-diamond.png)
 
