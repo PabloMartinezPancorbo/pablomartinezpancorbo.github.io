@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pablo Martinez Pancorbo - Interactive CV</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/17.0.2/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/17.0.2/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        // SkillChart Component
+        const SkillChart = ({ skills }) => {
+            const ctx = React.useRef(null);
+
+            React.useEffect(() => {
+                const myChart = new Chart(ctx.current, {
+                    type: 'radar',
+                    data: {
+                        labels: skills.map(skill => skill.name),
+                        datasets: [{
+                            label: 'Skills',
+                            data: skills.map(skill => skill.level),
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scale: {
+                            ticks: { beginAtZero: true, max: 10 }
+                        }
+                    }
+                });
+
+                return () => myChart.destroy();
+            }, [skills]);
+
+            return <canvas ref={ctx}></canvas>;
+        };
+
+        // ExperienceTimeline Component
+        const ExperienceTimeline = ({ experiences }) => {
+            return (
+                <div className="relative container mx-auto px-6 flex flex-col space-y-8">
+                    <div className="absolute z-0 w-2 h-full bg-white shadow-md inset-0 left-17 md:mx-auto md:right-0 md:left-0"></div>
+                    {experiences.map((exp, index) => (
+                        <div key={index} className="relative z-10">
+                            <div className="timeline-img bg-blue-500 w-6 h-6 absolute left-16 md:mx-auto md:left-0 md:right-0 rounded-full shadow-md"></div>
+                            <div className="timeline-container bg-white rounded-lg shadow-md p-6 ml-24 md:ml-0 md:mr-0">
+                                <h3 className="font-bold text-xl mb-1">{exp.role}</h3>
+                                <time className="text-sm font-normal leading-none text-gray-400 mb-2">{exp.period}</time>
+                                <p className="text-base font-normal text-gray-500">{exp.description}</p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            );
+        };
+
+        // Publications Component
+        const Publications = ({ publications }) => {
+            return (
+                <div className="space-y-4">
+                    {publications.map((pub, index) => (
+                        <div key={index} className="bg-white p-4 rounded shadow">
+                            <h3 className="font-semibold">{pub.title}</h3>
+                            <p className="text-sm text-gray-600">{pub.authors}</p>
+                            <p className="text-sm text-gray-500 italic">{pub.journal}</p>
+                        </div>
+                    ))}
+                </div>
+            );
+        };
+
+        // Main App Component
+        const App = () => {
+            const [activeTab, setActiveTab] = useState('skills');
+
+            const skills = [
+                { name: 'Python', level: 9 },
+                { name: 'Machine Learning', level: 8 },
+                { name: 'Data Analysis', level: 9 },
+                { name: 'Computer Vision', level: 8 },
+                { name: 'Augmented Reality', level: 7 },
+                { name: 'Research & Development', level: 9 },
+                { name: 'Team Leadership', level: 8 },
+                { name: 'Linux/Bash', level: 7 },
+                { name: 'SQL', level: 7 },
+            ];
+
+            const experiences = [
+                {
+                    role: 'Data Scientist / Software Engineer',
+                    period: 'Current',
+                    description: 'Leading teams in transitioning R&D products to production, integrating Agile methodologies, and creating interactive demos for clients.'
+                },
+                {
+                    role: 'Laboratory Automation Lead',
+                    period: 'Previous',
+                    description: 'Spearheaded end-to-end laboratory automation for scientific experimentation in the pharmaceutical sector, yielding significant time savings and productivity increases.'
+                },
+                {
+                    role: 'Marketing Data Analyst',
+                    period: 'Previous',
+                    description: 'Leveraged data analysis and predictive models to enhance email campaign effectiveness and sales forecasting.'
+                },
+                {
+                    role: 'Research Team Leader',
+                    period: 'Previous',
+                    description: 'Led the development and commercialization of a wearable sensor in Tokyo and created novel nanoparticles for cancer diagnosis and therapy.'
+                },
+            ];
+
+            const publications = [
+                {
+                    title: 'Highly scalable, wearable surface-enhanced Raman spectroscopy',
+                    authors: 'Liu L †, Martinez Pancorbo P †, Xiao T, et al. († Co-first authors)',
+                    journal: 'Advanced Optical Materials, 2022'
+                },
+                {
+                    title: 'Novel Au–SiO2–WO3 Core–Shell Composite Nanoparticles for Surface-Enhanced Raman Spectroscopy with Potential Application in Cancer Cell Imaging',
+                    authors: 'Martinez Pancorbo P, Thummavichai K, Clark L, et al.',
+                    journal: 'Adv. Funct. Mater, 2019'
+                },
+                {
+                    title: 'Gravity effects on Soret-induced non-equilibrium fluctuations in ternary mixtures',
+                    authors: 'Martínez Pancorbo P, Ortiz de Zárate JM, Bataller H, Croccolo F',
+                    journal: 'The European Physical Journal E, 2017'
+                },
+            ];
+
+            return (
+                <div className="container mx-auto p-8">
+                    <header className="text-center mb-12">
+                        <h1 className="text-4xl font-bold mb-2">Pablo Martinez Pancorbo</h1>
+                        <p className="text-xl text-gray-600">Data Scientist / Software Engineer</p>
+                    </header>
+
+                    <nav className="flex justify-center mb-8">
+                        <button 
+                            className={`mx-2 px-4 py-2 rounded ${activeTab === 'skills' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                            onClick={() => setActiveTab('skills')}
+                        >
+                            Skills
+                        </button>
+                        <button 
+                            className={`mx-2 px-4 py-2 rounded ${activeTab === 'experience' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                            onClick={() => setActiveTab('experience')}
+                        >
+                            Experience
+                        </button>
+                        <button 
+                            className={`mx-2 px-4 py-2 rounded ${activeTab === 'publications' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                            onClick={() => setActiveTab('publications')}
+                        >
+                            Publications
+                        </button>
+                    </nav>
+
+                    <main>
+                        {activeTab === 'skills' && (
+                            <div className="bg-white p-6 rounded-lg shadow-md">
+                                <h2 className="text-2xl font-bold mb-4">Skills</h2>
+                                <SkillChart skills={skills} />
+                            </div>
+                        )}
+                        {activeTab === 'experience' && (
+                            <div className="bg-white p-6 rounded-lg shadow-md">
+                                <h2 className="text-2xl font-bold mb-4">Experience</h2>
+                                <ExperienceTimeline experiences={experiences} />
+                            </div>
+                        )}
+                        {activeTab === 'publications' && (
+                            <div className="bg-white p-6 rounded-lg shadow-md">
+                                <h2 className="text-2xl font-bold mb-4">Selected Publications</h2>
+                                <Publications publications={publications} />
+                            </div>
+                        )}
+                    </main>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
