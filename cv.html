@@ -24,22 +24,100 @@
 
         // SkillChart Component
         const SkillChart = ({ skills }) => {
-            // ... (SkillChart component code remains the same)
+            const ctx = useRef(null);
+
+            useEffect(() => {
+                if (ctx.current) {
+                    const myChart = new Chart(ctx.current, {
+                        type: 'radar',
+                        data: {
+                            labels: skills.map(skill => skill.name),
+                            datasets: [{
+                                label: 'Skills',
+                                data: skills.map(skill => skill.level),
+                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                borderWidth: 2
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                r: {
+                                    beginAtZero: true,
+                                    max: 10,
+                                    ticks: {
+                                        stepSize: 1,
+                                        backdropColor: 'transparent'
+                                    },
+                                    pointLabels: {
+                                        font: {
+                                            size: 14
+                                        }
+                                    }
+                                }
+                            },
+                            responsive: true,
+                            maintainAspectRatio: false
+                        }
+                    });
+
+                    return () => myChart.destroy();
+                }
+            }, [skills]);
+
+            return (
+                <div className="w-full h-96">
+                    <canvas ref={ctx}></canvas>
+                </div>
+            );
         };
 
         // ExperienceTimeline Component
         const ExperienceTimeline = ({ experiences }) => {
-            // ... (ExperienceTimeline component code remains the same)
+            return (
+                <div className="container mx-auto px-6 flex flex-col space-y-8">
+                    {experiences.map((exp, index) => (
+                        <div key={index} className="relative z-10">
+                            <div className="bg-blue-500 w-6 h-6 absolute left-16 rounded-full"></div>
+                            <div className="bg-white p-6 ml-24 rounded-lg shadow-md">
+                                <h3 className="font-bold text-xl mb-1">{exp.role}</h3>
+                                <time className="text-sm font-normal text-gray-400 mb-2">{exp.period}</time>
+                                <p className="text-base font-normal text-gray-500">{exp.description}</p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            );
         };
 
         // Education Component
         const Education = ({ education }) => {
-            // ... (Education component code remains the same)
+            return (
+                <div className="space-y-4">
+                    {education.map((edu, index) => (
+                        <div key={index} className="bg-white p-4 rounded shadow">
+                            <h3 className="font-semibold text-lg">{edu.institution}</h3>
+                            <p className="text-sm text-gray-600">{edu.degree}</p>
+                            <p className="text-sm text-gray-500">{edu.period} - {edu.location}</p>
+                        </div>
+                    ))}
+                </div>
+            );
         };
 
         // Publications Component
         const Publications = ({ publications }) => {
-            // ... (Publications component code remains the same)
+            return (
+                <div className="space-y-4">
+                    {publications.map((pub, index) => (
+                        <div key={index} className="bg-white p-4 rounded shadow">
+                            <h3 className="font-semibold">{pub.title}</h3>
+                            <p className="text-sm text-gray-600">{pub.authors}</p>
+                            <p className="text-sm text-gray-500 italic">{pub.journal}</p>
+                        </div>
+                    ))}
+                </div>
+            );
         };
 
         // Main App Component
@@ -47,19 +125,89 @@
             const [activeTab, setActiveTab] = useState('skills');
 
             const skills = [
-                // ... (skills data remains the same)
+                { name: 'Python', level: 9.0 },
+                { name: 'Machine Learning', level: 8.0 },
+                { name: 'Data Analysis', level: 9.0 },
+                { name: 'Computer Vision', level: 8.0 },
+                { name: 'Augmented Reality', level: 7.5 },
+                { name: 'Research & Development', level: 9.0 },
+                { name: 'Team Leadership', level: 8.0 },
+                { name: 'Linux/Bash', level: 7.0 },
+                { name: 'SQL', level: 7.0 },
             ];
 
             const experiences = [
-                // ... (experiences data remains the same)
+                {
+                    role: 'Senior Data Scientist & AI Software Engineer - Consultant',
+                    period: 'May 2022 - Present',
+                    description: 'Led projects in Cloud Computing, ETL Pipelines, Data Science, Machine Learning, IoT, Supply Chain, Procurement. Implemented Agile methodologies using Jira, Confluence, Azure DevOps, and GitHub. Focused on strategic opportunity discovery and business development in large client accounts (USD billions size).'
+                },
+                {
+                    role: 'CEO & Founder',
+                    period: 'Feb 2021 - Feb 2023',
+                    description: 'Directed company's strategic direction and oversaw research initiatives, including grant writing and management. Collaborated with academics at the University of Exeter's School of Engineering and Start-Up Accelerator.'
+                },
+                {
+                    role: 'JSPS Postdoctoral Fellow',
+                    period: 'May 2021 - May 2022',
+                    description: 'Received and managed the prestigious postdoctoral research grant in Japan and mentored junior scientists. Collaborated with multidisciplinary teams, resulting in publications in major journals. Developed a novel biosensor for health biomarkers and applied computer vision techniques for data analysis.'
+                },
+                {
+                    role: 'Business Analyst',
+                    period: 'November 2014 - June 2015',
+                    description: 'Provided technical support for API connections integration between major banks and credit bureaus (USD billions size). Contributed to advanced mathematical models to analyze and interpret complex financial data.'
+                },
             ];
 
             const education = [
-                // ... (education data remains the same)
+                {
+                    institution: 'Harvard Publishing Group',
+                    degree: 'Professional Education, Connected Manager',
+                    period: '2023',
+                    location: 'UK'
+                },
+                {
+                    institution: 'Columbia University',
+                    degree: 'MicroMaster, Artificial Intelligence',
+                    period: '2021',
+                    location: 'USA'
+                },
+                {
+                    institution: 'University of Exeter',
+                    degree: 'PhD, Physics and Engineering',
+                    period: '2016 - 2020',
+                    location: 'UK'
+                },
+                {
+                    institution: 'Spanish National Distance University (UNED)',
+                    degree: 'Master of Science (MSc), Physics of Complex Systems',
+                    period: '2015 - 2017',
+                    location: 'Spain'
+                },
+                {
+                    institution: 'Complutense University of Madrid',
+                    degree: 'Bachelor of Science (BSc), Physics',
+                    period: '2010 - 2015',
+                    location: 'Spain'
+                },
             ];
 
             const publications = [
-                // ... (publications data remains the same)
+                {
+                    title: 'Highly scalable, wearable surface-enhanced Raman spectroscopy',
+                    authors: 'Liu L †, Martinez Pancorbo P †, Xiao T, et al. († Co-first authors)',
+                    journal: 'Advanced Optical Materials, 2022'
+                },
+                {
+                    title: 'Novel Au–SiO2–WO3 Core–Shell Composite Nanoparticles for Surface-Enhanced Raman Spectroscopy with Potential Application in Cancer Cell Imaging',
+                    authors: 'Martinez Pancorbo P, Thummavichai K, Clark L, et al.',
+                    journal: 'Adv. Funct. Mater, 2019'
+                },
+                {
+                    title: 'Gravity effects on Soret-induced non-equilibrium fluctuations in ternary mixtures',
+                    authors: 'Martínez Pancorbo P, Ortiz de Zárate JM, Bataller H, Croccolo F',
+                    journal: 'The European Physical Journal E, 2017'
+                },
             ];
 
             return (
