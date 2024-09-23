@@ -34,16 +34,44 @@
                         }]
                     },
                     options: {
-                        scale: {
-                            ticks: { beginAtZero: true, max: 10 }
-                        }
+                        scales: {
+                            r: { // Correct scale identifier for radar charts in Chart.js 3.x
+                                beginAtZero: true,
+                                max: 10, // Sets the maximum value of the scale
+                                ticks: {
+                                    stepSize: 1, // Optional: Defines the interval between ticks
+                                    backdropColor: 'transparent', // Optional: Removes the backdrop for a cleaner look
+                                    showLabelBackdrop: false // Optional: Hides the label backdrop
+                                },
+                                pointLabels: {
+                                    font: {
+                                        size: 14 // Optional: Adjusts the font size of the labels
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top' // Optional: Positions the legend
+                            },
+                            title: {
+                                display: true,
+                                text: 'Skills Radar Chart',
+                                font: {
+                                    size: 18 // Optional: Adjusts the font size of the title
+                                }
+                            }
+                        },
+                        responsive: true,
+                        maintainAspectRatio: false // Allows the chart to resize responsively
                     }
                 });
 
                 return () => myChart.destroy();
             }, [skills]);
 
-            return <canvas ref={ctx}></canvas>;
+            return <canvas ref={ctx} className="w-full h-96"></canvas>; // Adjusted height for better visibility
         };
 
         // ExperienceTimeline Component
@@ -85,7 +113,7 @@
             const [activeTab, setActiveTab] = useState('skills');
 
             const skills = [
-                { name: 'Python', level: 9.0},
+                { name: 'Python', level: 9.0 },
                 { name: 'Machine Learning', level: 8.0 },
                 { name: 'Data Analysis', level: 9.0 },
                 { name: 'Computer Vision', level: 8.0 },
@@ -136,6 +164,9 @@
                     journal: 'The European Physical Journal E, 2017'
                 },
             ];
+
+            // Optional: Log skills data to verify
+            console.log(skills.map(skill => ({ name: skill.name, level: typeof skill.level })));
 
             return (
                 <div className="container mx-auto p-8">
