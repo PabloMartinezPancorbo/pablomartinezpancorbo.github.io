@@ -86,6 +86,21 @@
             );
         };
 
+        // Education Component
+        const Education = ({ education }) => {
+            return (
+                <div className="space-y-4">
+                    {education.map((edu, index) => (
+                        <div key={index} className="bg-white p-4 rounded shadow">
+                            <h3 className="font-semibold text-lg">{edu.institution}</h3>
+                            <p className="text-sm text-gray-600">{edu.degree}</p>
+                            <p className="text-sm text-gray-500">{edu.period} - {edu.location}</p>
+                        </div>
+                    ))}
+                </div>
+            );
+        };
+
         // Publications Component
         const Publications = ({ publications }) => {
             return (
@@ -119,24 +134,57 @@
 
             const experiences = [
                 {
-                    role: 'Data Scientist / Software Engineer',
-                    period: 'Current',
-                    description: 'Leading teams in transitioning R&D products to production, integrating Agile methodologies, and creating interactive demos for clients.'
+                    role: 'Senior Data Scientist & AI Software Engineer - Consultant',
+                    period: 'May 2022 - Present',
+                    description: 'Led projects in Cloud Computing, ETL Pipelines, Data Science, Machine Learning, IoT, Supply Chain, Procurement. Implemented Agile methodologies using Jira, Confluence, Azure DevOps, and GitHub. Focused on strategic opportunity discovery and business development in large client accounts (USD billions size).'
                 },
                 {
-                    role: 'Laboratory Automation Lead',
-                    period: 'Previous',
-                    description: 'Spearheaded end-to-end laboratory automation for scientific experimentation in the pharmaceutical sector, yielding significant time savings and productivity increases.'
+                    role: 'CEO & Founder',
+                    period: 'Feb 2021 - Feb 2023',
+                    description: 'Directed company’s strategic direction and oversaw research initiatives, including grant writing and management. Collaborated with academics at the University of Exeter’s School of Engineering and Start-Up Accelerator.'
                 },
                 {
-                    role: 'Marketing Data Analyst',
-                    period: 'Previous',
-                    description: 'Leveraged data analysis and predictive models to enhance email campaign effectiveness and sales forecasting.'
+                    role: 'JSPS Postdoctoral Fellow',
+                    period: 'May 2021 - May 2022',
+                    description: 'Received and managed the prestigious postdoctoral research grant in Japan and mentored junior scientists. Collaborated with multidisciplinary teams, resulting in publications in major journals. Developed a novel biosensor for health biomarkers and applied computer vision techniques for data analysis.'
                 },
                 {
-                    role: 'Research Team Leader',
-                    period: 'Previous',
-                    description: 'Led the development and commercialization of a wearable sensor in Tokyo and created novel nanoparticles for cancer diagnosis and therapy.'
+                    role: 'Business Analyst',
+                    period: 'November 2014 - June 2015',
+                    description: 'Provided technical support for API connections integration between major banks and credit bureaus (USD billions size). Contributed to advanced mathematical models to analyze and interpret complex financial data.'
+                },
+            ];
+
+            const education = [
+                {
+                    institution: 'Harvard Publishing Group',
+                    degree: 'Professional Education, Connected Manager',
+                    period: '2023',
+                    location: 'UK'
+                },
+                {
+                    institution: 'Columbia University',
+                    degree: 'MicroMaster, Artificial Intelligence',
+                    period: '2021',
+                    location: 'USA'
+                },
+                {
+                    institution: 'University of Exeter',
+                    degree: 'PhD, Physics and Engineering',
+                    period: '2016 - 2020',
+                    location: 'UK'
+                },
+                {
+                    institution: 'Spanish National Distance University (UNED)',
+                    degree: 'Master of Science (MSc), Physics of Complex Systems',
+                    period: '2015 - 2017',
+                    location: 'Spain'
+                },
+                {
+                    institution: 'Complutense University of Madrid',
+                    degree: 'Bachelor of Science (BSc), Physics',
+                    period: '2010 - 2015',
+                    location: 'Spain'
                 },
             ];
 
@@ -167,7 +215,8 @@
 
                     <nav className="flex justify-center mb-8">
                         <button 
-                            className={`mx-2 px-4 py-2 rounded ${activeTab === 'skills' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                            className={`mx-2 px-4 py-2 rounded ${activeTab === '
+{activeTab === 'skills' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
                             onClick={() => setActiveTab('skills')}
                         >
                             Skills
@@ -183,6 +232,12 @@
                             onClick={() => setActiveTab('publications')}
                         >
                             Publications
+                        </button>
+                        <button 
+                            className={`mx-2 px-4 py-2 rounded ${activeTab === 'education' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                            onClick={() => setActiveTab('education')}
+                        >
+                            Education
                         </button>
                     </nav>
 
@@ -203,6 +258,12 @@
                             <div className="bg-white p-6 rounded-lg shadow-md">
                                 <h2 className="text-2xl font-bold mb-4">Selected Publications</h2>
                                 <Publications publications={publications} />
+                            </div>
+                        )}
+                        {activeTab === 'education' && (
+                            <div className="bg-white p-6 rounded-lg shadow-md">
+                                <h2 className="text-2xl font-bold mb-4">Education</h2>
+                                <Education education={education} />
                             </div>
                         )}
                     </main>
