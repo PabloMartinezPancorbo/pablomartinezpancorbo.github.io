@@ -87,9 +87,15 @@
             return (
                 <div className="relative container mx-auto px-6 flex flex-col space-y-8">
                     {experiences.map((exp, index) => (
-                        <div key={index} className="relative z-10">
-                            <div className="bg-blue-500 w-6 h-6 absolute left-16 top-0 transform -translate-x-1/2 rounded-full"></div>
-                            <div className="bg-white p-6 ml-24 rounded-lg shadow-md">
+                        <div key={index} className="relative z-10 flex flex-row items-center">
+                            {/* Dot */}
+                            <div className="bg-blue-500 w-6 h-6 rounded-full z-20"></div>
+                            {/* Vertical Line */}
+                            {index !== experiences.length - 1 && (
+                                <div className="w-1 bg-gray-200 h-full absolute left-2.5 top-6"></div>
+                            )}
+                            {/* Content */}
+                            <div className="bg-white p-6 ml-12 rounded-lg shadow-md w-full">
                                 <h3 className="font-bold text-xl mb-1">{exp.role}</h3>
                                 <time className="text-sm font-normal text-gray-400 mb-2">{exp.period}</time>
                                 <p className="text-base font-normal text-gray-500">{exp.description}</p>
@@ -100,17 +106,28 @@
             );
         };
 
-        // Education Component
-        const Education = ({ education }) => {
+        // EducationTimeline Component (Updated)
+        const EducationTimeline = ({ education }) => {
             return (
-                <div className="space-y-4">
-                    {education.map((edu, index) => (
-                        <div key={index} className="bg-white p-4 rounded shadow">
-                            <h3 className="font-semibold text-lg">{edu.institution}</h3>
-                            <p className="text-sm text-gray-600">{edu.degree}</p>
-                            <p className="text-sm text-gray-500">{edu.period} - {edu.location}</p>
-                        </div>
-                    ))}
+                <div className="relative container mx-auto px-6">
+                    {/* Vertical Line */}
+                    <div className="absolute left-4 top-0 w-1 bg-gray-200 h-full"></div>
+                    <div className="space-y-8">
+                        {education.map((edu, index) => (
+                            <div key={index} className="flex flex-row items-center">
+                                {/* Dot */}
+                                <div className="flex-shrink-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center z-10">
+                                    {/* Optional: Add icons or numbers */}
+                                </div>
+                                {/* Content */}
+                                <div className="ml-6">
+                                    <h3 className="font-semibold text-lg">{edu.institution}</h3>
+                                    <p className="text-sm text-gray-600">{edu.degree}</p>
+                                    <p className="text-sm text-gray-500">{edu.period} - {edu.location}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             );
         };
@@ -281,7 +298,7 @@
                         {activeTab === 'education' && (
                             <div className="bg-white p-6 rounded-lg shadow-md">
                                 <h2 className="text-2xl font-bold mb-4">Education</h2>
-                                <Education education={education} />
+                                <EducationTimeline education={education} />
                             </div>
                         )}
                     </main>
