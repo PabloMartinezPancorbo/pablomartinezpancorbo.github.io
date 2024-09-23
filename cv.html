@@ -5,20 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pablo Martinez Pancorbo - Interactive CV</title>
     <!-- React and ReactDOM (Development Builds) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.development.js" crossorigin></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.development.js" crossorigin></script>
-    <!-- Babel for JSX transformation (Updated to 7.x) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.21.4/babel.min.js" integrity="sha512-0nMnK7b7XGgnr1UFpXTlfciFvZhfC+ApU57KGcmClT8kDhJzXlwOJJfZZzy8S2aFxIy5VNfJM0tAlCPrQiqxMg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Babel for JSX transformation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <!-- Chart.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js" integrity="sha512-TsE1yjysVMS8M+fS/JPdf+dHtMvjF0Sb+/mNC1B1S8+5EJO7sKzUObZHv3lOVS90T4HkXukNxgV3U1T+0fG1mw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <!-- TailwindCSS (Updated to a newer version) -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/3.3.2/tailwind.min.css" rel="stylesheet" integrity="sha512-3tXk5A+R0vE5Mk3lXh5+oqtaC2G7SLmmI3B0PqCKFP9vVPAZkWnKvON0PFbA0aV+u+UEmWbzt1SVhJkCTe3w2w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://unpkg.com/chart.js@3.9.1/dist/chart.min.js"></script>
+    <!-- TailwindCSS (Latest Version) -->
+    <link href="https://unpkg.com/tailwindcss@3.3.2/dist/tailwind.min.css" rel="stylesheet" />
     <!-- Font Awesome for LinkedIn icon -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" integrity="sha512-iBBXm8fW90+nuLcSKVB0Y9zP2K+0G4yxM7+N1w0XR0K0Kn5C7bV0XY8rVZ1pHY+7nQmwJLEC7E3P5ZJ9x9LGmA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
 </head>
 <body class="bg-gray-100">
     <div id="root"></div>
 
+    <!-- React Application Script -->
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
@@ -29,7 +30,7 @@
 
             useEffect(() => {
                 if (ctx.current) {
-                    // Destroy existing chart instance if it exists to prevent duplication
+                    // Destroy existing chart instance to prevent duplication
                     if (chartInstance.current) {
                         chartInstance.current.destroy();
                     }
@@ -67,6 +68,7 @@
                         }
                     });
 
+                    // Cleanup on unmount
                     return () => {
                         chartInstance.current.destroy();
                     };
@@ -285,6 +287,7 @@
             );
         };
 
+        // Render the App
         ReactDOM.createRoot(document.getElementById('root')).render(<App />);
     </script>
 </body>
