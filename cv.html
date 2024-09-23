@@ -4,17 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pablo Martinez Pancorbo - Interactive CV</title>
-    <!-- React and ReactDOM -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-    <!-- Babel for JSX transformation -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
+    <!-- React and ReactDOM (Development Builds) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.development.js" crossorigin></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.development.js" crossorigin></script>
+    <!-- Babel for JSX transformation (Updated to 7.x) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.21.4/babel.min.js" integrity="sha512-0nMnK7b7XGgnr1UFpXTlfciFvZhfC+ApU57KGcmClT8kDhJzXlwOJJfZZzy8S2aFxIy5VNfJM0tAlCPrQiqxMg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!-- Chart.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <!-- TailwindCSS -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js" integrity="sha512-TsE1yjysVMS8M+fS/JPdf+dHtMvjF0Sb+/mNC1B1S8+5EJO7sKzUObZHv3lOVS90T4HkXukNxgV3U1T+0fG1mw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- TailwindCSS (Updated to a newer version) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/3.3.2/tailwind.min.css" rel="stylesheet" integrity="sha512-3tXk5A+R0vE5Mk3lXh5+oqtaC2G7SLmmI3B0PqCKFP9vVPAZkWnKvON0PFbA0aV+u+UEmWbzt1SVhJkCTe3w2w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- Font Awesome for LinkedIn icon -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" integrity="sha512-iBBXm8fW90+nuLcSKVB0Y9zP2K+0G4yxM7+N1w0XR0K0Kn5C7bV0XY8rVZ1pHY+7nQmwJLEC7E3P5ZJ9x9LGmA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body class="bg-gray-100">
     <div id="root"></div>
@@ -25,10 +25,16 @@
         // SkillChart Component
         const SkillChart = ({ skills }) => {
             const ctx = useRef(null);
+            const chartInstance = useRef(null);
 
             useEffect(() => {
                 if (ctx.current) {
-                    const myChart = new Chart(ctx.current, {
+                    // Destroy existing chart instance if it exists to prevent duplication
+                    if (chartInstance.current) {
+                        chartInstance.current.destroy();
+                    }
+
+                    chartInstance.current = new Chart(ctx.current, {
                         type: 'radar',
                         data: {
                             labels: skills.map(skill => skill.name),
@@ -61,7 +67,9 @@
                         }
                     });
 
-                    return () => myChart.destroy();
+                    return () => {
+                        chartInstance.current.destroy();
+                    };
                 }
             }, [skills]);
 
@@ -75,10 +83,10 @@
         // ExperienceTimeline Component
         const ExperienceTimeline = ({ experiences }) => {
             return (
-                <div className="container mx-auto px-6 flex flex-col space-y-8">
+                <div className="relative container mx-auto px-6 flex flex-col space-y-8">
                     {experiences.map((exp, index) => (
                         <div key={index} className="relative z-10">
-                            <div className="bg-blue-500 w-6 h-6 absolute left-16 rounded-full"></div>
+                            <div className="bg-blue-500 w-6 h-6 absolute left-16 top-0 transform -translate-x-1/2 rounded-full"></div>
                             <div className="bg-white p-6 ml-24 rounded-lg shadow-md">
                                 <h3 className="font-bold text-xl mb-1">{exp.role}</h3>
                                 <time className="text-sm font-normal text-gray-400 mb-2">{exp.period}</time>
@@ -145,7 +153,7 @@
                 {
                     role: 'CEO & Founder',
                     period: 'Feb 2021 - Feb 2023',
-                    description: 'Directed company's strategic direction and oversaw research initiatives, including grant writing and management. Collaborated with academics at the University of Exeter's School of Engineering and Start-Up Accelerator.'
+                    description: 'Directed company\'s strategic direction and oversaw research initiatives, including grant writing and management. Collaborated with academics at the University of Exeter\'s School of Engineering and Start-Up Accelerator.'
                 },
                 {
                     role: 'JSPS Postdoctoral Fellow',
@@ -222,25 +230,25 @@
 
                     <nav className="flex justify-center mb-8">
                         <button 
-                            className={`mx-2 px-4 py-2 rounded ${activeTab === 'skills' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                            className={`mx-2 px-4 py-2 rounded ${activeTab === 'skills' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
                             onClick={() => setActiveTab('skills')}
                         >
                             Skills
                         </button>
                         <button 
-                            className={`mx-2 px-4 py-2 rounded ${activeTab === 'experience' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                            className={`mx-2 px-4 py-2 rounded ${activeTab === 'experience' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
                             onClick={() => setActiveTab('experience')}
                         >
                             Selected Experience
                         </button>
                         <button 
-                            className={`mx-2 px-4 py-2 rounded ${activeTab === 'publications' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                            className={`mx-2 px-4 py-2 rounded ${activeTab === 'publications' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
                             onClick={() => setActiveTab('publications')}
                         >
                             Publications
                         </button>
                         <button 
-                            className={`mx-2 px-4 py-2 rounded ${activeTab === 'education' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                            className={`mx-2 px-4 py-2 rounded ${activeTab === 'education' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
                             onClick={() => setActiveTab('education')}
                         >
                             Education
