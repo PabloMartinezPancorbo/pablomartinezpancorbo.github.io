@@ -147,6 +147,40 @@
             );
         };
 
+        // Projects Component
+        const Projects = ({ projects }) => {
+            return (
+                <div className="space-y-4">
+                    {projects.map((project, index) => (
+                        <div key={index} className="bg-white p-4 rounded shadow">
+                            <h3 className="font-semibold text-xl">
+                                <a href={project.link} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                                    {project.name}
+                                </a>
+                            </h3>
+                            <p className="text-sm text-gray-600">{project.description}</p>
+                            <p className="text-sm text-gray-500">{project.techStack}</p>
+                        </div>
+                    ))}
+                </div>
+            );
+        };
+
+        // Certifications Component
+        const Certifications = ({ certifications }) => {
+            return (
+                <div className="space-y-4">
+                    {certifications.map((cert, index) => (
+                        <div key={index} className="bg-white p-4 rounded shadow">
+                            <h3 className="font-semibold text-xl">{cert.title}</h3>
+                            <p className="text-sm text-gray-600">{cert.issuer}</p>
+                            <p className="text-sm text-gray-500">{cert.date}</p>
+                        </div>
+                    ))}
+                </div>
+            );
+        };
+        
         // Main App Component
         const App = () => {
             const [activeTab, setActiveTab] = useState('skills');
@@ -160,9 +194,9 @@
                 { name: 'GenAI', level: 8.5 },                       // Added
                 { name: 'Stakeholder Management', level: 9.0 },     // Added
                 { name: 'Research & Development', level: 9.0 },
-                { name: 'Team Leadership', level: 8.0 },
-                { name: 'Linux/Bash', level: 7.0 },
-                { name: 'SQL', level: 7.0 },
+                { name: 'Team Leadership', level: 8.5 },
+                { name: 'Linux/Bash', level: 8.0 },
+                { name: 'SQL', level: 7.5 },
             ];
 
             const experiences = [
@@ -239,6 +273,27 @@
                 },
             ];
 
+            // New projects data
+            const projects = [
+                {
+                    name: 'Reinforcement Learning Snake Game',
+                    description: 'Developed an AI agent that learns to play the Snake game using reinforcement learning algorithms.',
+                    techStack: 'Python, pygame, Reinforcement Learning',
+                    link: 'https://github.com/PabloMartinezPancorbo/snakeproject/'
+                },
+                // I'll add more projects over time
+            ];
+
+            // New certifications data
+            const certifications = [
+                {
+                    title: 'AWS Certified Solutions Architect',
+                    issuer: 'Amazon Web Services',
+                    date: 'July 2024'
+                },
+                // I'll add more certifications over time
+            ];            
+            
             return (
                 <div className="container mx-auto p-8">
                     <header className="text-center mb-12">
@@ -274,6 +329,20 @@
                         >
                             Education
                         </button>
+                        {/* Projects Button */}
+                        <button 
+                            className={`mx-2 px-4 py-2 rounded ${activeTab === 'projects' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+                            onClick={() => setActiveTab('projects')}
+                        >
+                            Projects
+                        </button>
+                        {/* Certifications Button */}
+                        <button 
+                            className={`mx-2 px-4 py-2 rounded ${activeTab === 'certifications' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+                            onClick={() => setActiveTab('certifications')}
+                        >
+                            Certifications
+                        </button>
                     </nav>
 
                     <main>
@@ -299,6 +368,18 @@
                             <div className="bg-white p-6 rounded-lg shadow-md">
                                 <h2 className="text-2xl font-bold mb-4">Education</h2>
                                 <EducationTimeline education={education} />
+                            </div>
+                        )}
+                        {activeTab === 'projects' && (
+                            <div className="bg-white p-6 rounded-lg shadow-md">
+                                <h2 className="text-2xl font-bold mb-4">Projects</h2>
+                                <Projects projects={projects} />
+                            </div>
+                        )}
+                        {activeTab === 'certifications' && (
+                            <div className="bg-white p-6 rounded-lg shadow-md">
+                                <h2 className="text-2xl font-bold mb-4">Certifications</h2>
+                                <Certifications certifications={certifications} />
                             </div>
                         )}
                     </main>
