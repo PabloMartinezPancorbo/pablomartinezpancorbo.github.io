@@ -1,3 +1,6 @@
+---
+layout: default
+---
 ```mermaid
 graph TD
     %% Input Processing
