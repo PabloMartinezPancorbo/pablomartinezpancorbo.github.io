@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
 
-{% seo %}
+    {% seo %}
     <link href='https://fonts.googleapis.com/css?family=Arvo:400,700,400italic' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
     <script src="{{ '/assets/js/scale.fix.js' | relative_url }}"></script>
@@ -12,6 +12,16 @@
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+
+    <!-- Mermaid.js runtime -->
+    <script src="https://unpkg.com/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        mermaid.initialize({ startOnLoad: true });
+        // Also render fenced code blocks tagged language-mermaid
+        mermaid.init(undefined, document.querySelectorAll('.language-mermaid'));
+      });
+    </script>
   </head>
   <body>
     <div class="wrapper">
@@ -26,7 +36,6 @@
           {% endif %}
           <li><a class="buttons github" href="{{ site.github.repository_url }}">View On GitHub</a></li>
         </ul>
-
       </header>
 
       <section>
@@ -43,7 +52,7 @@
         <p><small><a href="https://www.xrdreamsoftware.com/">XR Dream</a></small></p>
       </footer>
     </div>
-    
+
     <!--[if !IE]><script>fixScale(document);</script><![endif]-->
     {% if site.google_analytics %}
       <script type="text/javascript">
