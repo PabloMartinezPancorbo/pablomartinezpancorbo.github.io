@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dr. Pablo Martinez Pancorbo – Interactive CV</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/17.0.2/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/17.0.2/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  <style>
+    /* ── DARK MODE ─────────────────────────────────── */
+    body.dark { background:#111827 }
+    body.dark .dm-bg     { background:#111827 }
+    body.dark .dm-card   { background:#1f2937 !important; border-color:#374151 }
+    body.dark .dm-text   { color:#f9fafb !important }
+    body.dark .dm-text2  { color:#d1d5db !important }
+    body.dark .dm-muted  { color:#9ca3af !important }
+    body.dark .dm-border { border-color:#374151 !important }
+    body.dark .dm-nav-off{ background:#374151 !important; color:#d1d5db !important }
+    body.dark .dm-statbg { background:#1e3a5f !important }
+    body.dark .dm-tag    { background:#1e3a5f !important; color:#93c5fd !important }
+    body.dark .dm-bartr  { background:#374151 !important }
+    body.dark .dm-pubrow { border-color:#374151 !important }
+    body.dark .dm-tldot  { border-color:#1f2937 !important }
+    /* ── MOBILE NAV ───────────────────────────────── */
+    .nav-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none }
+    .nav-scroll::-webkit-scrollbar { display:none }
+    .nav-inner  { display:flex; gap:8px; flex-wrap:nowrap; min-width:max-content }
+    /* ── TIMELINE ─────────────────────────────────── */
+    .tl-outer { position:relative; padding-left:2.4rem }
+    .tl-line  { position:absolute; left:.85rem; top:0; bottom:0; width:2px; background:#e5e7eb }
+    body.dark .tl-line { background:#374151 }
+    .tl-dot   { position:absolute; left:.42rem; top:1.35rem; width:14px; height:14px;
+                border-radius:50%; background:#3b82f6; border:3px solid #fff; z-index:1 }
+    /* ── SKILL BARS ───────────────────────────────── */
+    .bar-fill { height:8px; border-radius:9999px; width:0;
+                transition:width 1s cubic-bezier(.4,0,.2,1);
+                background:linear-gradient(90deg,#3b82f6,#60a5fa) }
+    /* ── ICON TOOLTIP ─────────────────────────────── */
+    .ic-wrap { position:relative; display:inline-flex }
+    .ic-tip  { display:none; position:absolute; bottom:calc(100% + 6px); left:50%;
+               transform:translateX(-50%); background:#1f2937; color:#fff;
+               font-size:.68rem; padding:3px 8px; border-radius:4px; white-space:nowrap; z-index:50 }
+    .ic-wrap:hover .ic-tip { display:block }
+    /* ── MISC ─────────────────────────────────────── */
+    .tag-pill { display:inline-block; padding:2px 9px; border-radius:9999px;
+                font-size:.68rem; background:#eff6ff; color:#1d4ed8; margin:2px }
+    body.dark .tag-pill { background:#1e3a5f; color:#93c5fd }
+    .fade-in  { animation:fadeIn .25s ease }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+    @media print { .no-print{display:none!important} body{background:#fff!important} }
+  </style>
+</head>
+<body class="bg-gray-100 dm-bg" id="cv-body">
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useRef, useEffect } = React;
+
+    /* ═══════════════════════════════════════════════
+       DATA
+    ═══════════════════════════════════════════════ */
+    const skills = [
+      { name: 'Cloud Strategy\n(AWS/Azure/GCP)', level: 9.5 },
+      { name: 'Python / ML Eng.',               level: 9   },
+      { name: 'Data & Analytics',               level: 9   },
+      { name: 'GenAI & LLMs',                   level: 9   },
+      { name: 'DevOps / CI/CD',                 level: 8.5 },
+      { name: 'Team Leadership',                level: 9   },
+      { name: 'Presales & Biz Dev',             level: 8.5 },
+      { name: 'Research & R&D',                 level: 9   },
+      { name: 'Architecture',                   level: 8.5 },
+    ];
+
+    const barSkills = [
+      { cat: 'Cloud Platforms',   items: [{n:'AWS (105+ services)',p:95},{n:'Azure',p:80},{n:'GCP',p:72}] },
+      { cat: 'AI / ML / GenAI',   items: [{n:'GenAI & LLM Agents',p:90},{n:'PyTorch / TensorFlow',p:88},{n:'Scikit-Learn / MLflow',p:88},{n:'MLOps',p:85}] },
+      { cat: 'Programming',       items: [{n:'Python',p:95},{n:'PySpark / Spark',p:85},{n:'JavaScript / React',p:78},{n:'Bash / Linux',p:78}] },
+      { cat: 'Data & DevOps',     items: [{n:'SQL / NoSQL',p:85},{n:'Kafka / Kinesis',p:78},{n:'Docker / ECS / EKS',p:80},{n:'CI/CD / GitHub Actions',p:82}] },
+      { cat: 'Infrastructure as Code', items: [{n:'Terraform',p:80},{n:'CloudFormation',p:80},{n:'Serverless / Lambda',p:88},{n:'Architecture Governance',p:85}] },
+    ];
+
+    const techTags = [
+      'AWS (105+ services)','Azure','GCP','Python','GenAI','LLMs','Claude','OpenAI GPT','Amazon Bedrock',
+      'Agentic AI','AI Prototyping','AI Production Strategy','Langchain','Strands Agents','PyTorch','TensorFlow','Scikit-Learn','MLflow','MLOps',
+      'Spark','PySpark','Apache Kafka','Apache Iceberg','Delta Lake','SQL','NoSQL','NeptuneDB','Neo4J',
+      'Terraform','CloudFormation','React.js','Docker','ECS/EKS','Lambda','Step Functions','CI/CD','TDD','BDD',
+      'Agile','Jira','Grafana','Prometheus','CloudWatch','Microservices','FinOps','Cloud Transformation','Cloud Migration',
+      'Data Analysis','Sales Forecasting','Laboratory Automation','Computer Vision','Augmented Reality','SERS / Spectroscopy','Nanotechnology',
+    ];
+
+    const experiences = [
+      {
+        role: 'Customer Solutions Manager',
+        company: 'Amazon Web Services (AWS)',
+        period: 'Jul 2024 – Present',
+        location: 'London, UK',
+        description: 'Lead strategic AI/ML and cloud modernisation initiatives for multibillion-dollar customer accounts across EMEA.',
+        bullets: [
+          'Direct AWS AI, Data Science, and Analytics projects, prototyping, and enablement for pre-sales.',
+          'Drive adoption of cloud-native observability, automation, GenAI solutions, and FinOps best practices through agile acceleration programmes, hands-on workshops, POCs/POVs, and executive briefings.',
+          'Lead GenAI presales with enterprise customers on Claude & Nova models, and Q Developer & Business.',
+          'Oversee a portfolio of US$170M+ in cloud budgets and drive US$10M+ in consumption growth and cost savings.',
+        ],
+        tags: ['AWS','GenAI','MLOps','FinOps','Presales','EMEA','Enterprise'],
+      },
+      {
+        role: 'Senior Data Scientist|Senior AI Engineer & Lead Consultant',
+        company: 'Capgemini Engineering',
+        period: 'May 2022 – Jul 2024',
+        location: 'Stevenage, UK',
+        description: 'Architected and deployed scalable AI/ML solutions with real-time analytics and automated DevOps pipelines.',
+        bullets: [
+          'Implemented CI/CD processes and cloud-native architectures, improving operational efficiency by over 30%.',
+          'Managed developer teams implementing TDD and BDD methodologies to ensure high-quality, resilient software.',
+          'Led transition of R&D concepts into production-ready solutions, including interactive client demos and stakeholder-facing prototypes.',
+          'Delivered laboratory automation initiatives for scientific experimentation in the pharmaceutical sector, unlocking significant time savings and productivity gains.',
+          'Applied analytics and predictive modelling to improve campaign effectiveness, commercial reporting, and sales forecasting.',
+          'Led digital transformation in procurement optimisation, IoT analytics, and financial operations — influencing multi-million US$ YoY licence revenues through strategic presales, sales enablement, and delivery coordination.',
+        ],
+        tags: ['AI/ML','CI/CD','Cloud','IoT','TDD','BDD','Presales','Digital Transformation'],
+      },
+      {
+        role: 'CEO & Founder',
+        company: 'XR Dream Limited',
+        period: 'Feb 2021 – Feb 2023',
+        location: 'London, UK',
+        description: 'Founded a deep-tech spin-off in collaboration with the University of Exeter, focused on XR and emerging technologies.',
+        bullets: [
+          'Managed company operations, grant writing, strategic partnerships, and R&D project delivery.',
+        ],
+        tags: ['Startup','XR','AR','R&D','Entrepreneurship'],
+      },
+      {
+        role: 'JSPS Postdoctoral Fellow',
+        company: 'University of Tokyo',
+        period: 'May 2021 – May 2022',
+        location: 'Tokyo, Japan',
+        description: 'Secured competitive funding (JP¥200K–3M) from JSPS for ML research in health diagnostics and biosensing.',
+        bullets: [
+          'Published in high-impact journals; co-advised the launch of LucasLand (U-Tokyo spin-off); mentored junior researchers.',
+          'Supported translation and commercialisation efforts around wearable sensing technologies in Tokyo, bridging research and real-world application.',
+          'Collaborated with Japan\'s National Research Institute of Police Science on forensic ML applications.',
+        ],
+        tags: ['ML','Biosensing','Research','Japan','JSPS','Publication'],
+      },
+      {
+        role: 'PhD Researcher',
+        company: 'University of Exeter & EPSRC CDT in Metamaterials (XM2)',
+        period: 'Oct 2016 – Oct 2020',
+        location: 'Exeter, UK',
+        description: 'Developed novel nanoparticles for tracking and eliminating cancer cells using advanced imaging and signal processing.',
+        bullets: [
+          'Awarded South West UK Winner for YPLC by IOM3; Best ChemBio Poster by The Royal Society of Chemistry.',
+          'Organised Women in Engineering events; represented Exeter at STEM for Science 2018 in the House of Commons.',
+          'Served as Postgraduate Representative and led the Early Career Researchers Network (ECRN).',
+          'Mentored Master\'s students and secured multiple funding rounds for international collaborations.',
+        ],
+        tags: ['Nanotechnology','SERS','Photonics','Research','Signal Processing','Python'],
+      },
+      {
+        role: 'Postgraduate Teaching Assistant',
+        company: 'University of Exeter',
+        period: 'Feb 2017 – Jul 2020',
+        location: 'Exeter, UK',
+        description: 'Led lectures for 60-person classes in mathematics, computer science (Python, MATLAB, C), statistics, and physics.',
+        bullets: [],
+        tags: ['Teaching','Python','MATLAB','Physics','Mathematics'],
+      },
+      {
+        role: 'Researcher',
+        company: 'Université de Pau, ESA & Complutense University of Madrid',
+        period: 'Feb 2016 – Sep 2016',
+        location: 'Madrid, Spain & Pau, France',
+        description: 'Developed a novel mathematical model for non-equilibrium fluid dynamics with applications in space mission design, in-orbit experiments, and life support systems (downstream economic impact estimated €1–3M).',
+        bullets: [],
+        tags: ['Research','Physics','ESA','Space','Modelling'],
+      },
+      {
+        role: 'Business Intelligence Systems Engineer',
+        company: 'Indra',
+        period: 'Nov 2015 – Jan 2016',
+        location: 'Madrid, Spain',
+        description: 'Large-scale SQL database migrations (MS SQL Server, Oracle → IBM Netezza) for one of Spain\'s largest energy providers; project value estimated at €2–3M.',
+        bullets: [],
+        tags: ['SQL','Data Engineering','BI','Migration'],
+      },
+      {
+        role: 'Physics Technician',
+        company: 'National Physical Laboratory (NPL) & St Mary\'s University',
+        period: 'May 2015 – Sep 2015',
+        location: 'London, UK',
+        description: 'Developed and executed physics experiments and safety protocols at NPL.',
+        bullets: [],
+        tags: ['Physics','Research','Experimental'],
+      },
+      {
+        role: 'Business Analyst',
+        company: 'GDS Modellica',
+        period: 'Dec 2014 – May 2015',
+        location: 'Madrid, Spain',
+        description: 'API integrations between major Spanish banks and credit bureaus (Experian, TransUnion, Equifax) for credit scoring; generating an estimated €1–2M ARR.',
+        bullets: [],
+        tags: ['API Integration','Banking','Credit Scoring','Analytics'],
+      },
+    ];
+
+    const education = [
+      { icon:'cap', deg:'PhD, Physics and Engineering',               school:'University of Exeter',                                    period:'2016 – 2020', loc:'UK',     note:'EPSRC CDT in Metamaterials (XM2). Novel nanoparticle synthesis, SERS, wearable biosensors for cancer diagnostics and therapy.' },
+      { icon:'chip', deg:'MicroMaster, Artificial Intelligence',        school:'Columbia University',                                      period:'2021',        loc:'USA',    note:'Graduate-level AI curriculum: machine learning, NLP, computer vision, and robotics.' },
+      { icon:'bolt', deg:'MSc, Energy Systems',                         school:'HiG University of Gävle & KTH Royal Institute of Technology', period:'2017 – 2018', loc:'Sweden', note:'Computational modelling of sustainable energy systems.' },
+      { icon:'atom', deg:'MSc, Physics of Complex Systems',             school:'UNED (Spanish National Distance University)',               period:'2015 – 2017', loc:'Spain',  note:'Non-equilibrium thermodynamics, fluid dynamics, and mathematical modelling.' },
+      { icon:'flask', deg:'BSc, Physics',                                school:'Complutense University of Madrid',                         period:'2010 – 2015', loc:'Spain',  note:'Classical & quantum mechanics, electromagnetism, statistical physics, and experimental methods.' },
+    ];
+
+    const certifications = [
+      { n: 'AWS Certified CloudOps Engineer – Associate',                         d: 'Dec 2025' },
+      { n: 'AWS Certified Developer – Associate',                                  d: 'May 2025' },
+      { n: 'AWS Certified Machine Learning – Specialty',                           d: 'Apr 2025' },
+      { n: 'AWS Certified Data Engineer – Associate',                              d: 'Jan 2025' },
+      { n: 'AWS Certified Machine Learning Engineer – Associate (Early Adopter)',   d: 'Oct 2024' },
+      { n: 'AWS Certified AI Practitioner – Early Adopter',                        d: 'Oct 2024' },
+      { n: 'AWS Solutions Architect – Associate (SAA-C03)',                        d: 'Jul 2024' },
+      { n: "Harvard Publishing Group's Connected Manager",                          d: 'Aug 2023' },
+    ];
+
+    const publications = [
+      {
+        title:   'Highly scalable, wearable surface-enhanced Raman spectroscopy',
+        authors: 'Liu L †, Martinez Pancorbo P †, Xiao T, et al. († Co-first authors)',
+        journal: 'Advanced Optical Materials, 2022',
+      },
+      {
+        title:   'Novel Au–SiO₂–WO₃ Core–Shell Composite Nanoparticles for Surface-Enhanced Raman Spectroscopy with Potential Application in Cancer Cell Imaging',
+        authors: 'Martinez Pancorbo P, Thummavichai K, Clark L, et al.',
+        journal: 'Advanced Functional Materials, 2019',
+      },
+      {
+        title:   'Gravity effects on Soret-induced non-equilibrium fluctuations in ternary mixtures',
+        authors: 'Martínez Pancorbo P, Ortiz de Zárate JM, Bataller H, Croccolo F',
+        journal: 'The European Physical Journal E, 2017',
+      },
+    ];
+
+    const projects = [
+      {
+        title: 'Enterprise Cloud & AI Transformation Programmes',
+        context: 'Strategic delivery · AWS, EMEA',
+        summary: 'Led strategic cloud modernisation, observability, automation, and AI initiatives for major enterprise accounts across EMEA, aligning delivery with business outcomes and ROI.',
+        highlights: [
+          'Executive stakeholder engagement across large, regulated customer environments.',
+          'Program leadership spanning migration, innovation, FinOps, and cloud operating model acceleration.',
+          'Hands-on support for workshops, prototypes, and adoption plans across AI, data, and analytics domains.'
+        ],
+        stack: ['AWS', 'Cloud Strategy', 'FinOps', 'Observability', 'Executive Advisory']
+      },
+      {
+        title: 'Generative AI Presales & Prototyping',
+        context: 'Strategic delivery · AWS / Enterprise Customers',
+        summary: 'Designed and led GenAI presales engagements, workshops, and prototyping efforts using frontier models and enterprise-ready cloud patterns.',
+        highlights: [
+          'Supported customer discovery, solution shaping, and proof-of-value activities.',
+          'Worked on use cases involving LLMs, Bedrock, Claude, Nova, and agentic design patterns.',
+          'Bridged technical depth and business framing for customer and internal stakeholders.'
+        ],
+        stack: ['GenAI', 'LLMs', 'Amazon Bedrock', 'Claude', 'Nova', 'Prototyping']
+      },
+      {
+        title: 'Laboratory Automation in Pharma',
+        context: 'Strategic delivery · Capgemini Engineering',
+        summary: 'Spearheaded end-to-end laboratory automation for scientific experimentation, reducing manual effort and improving operational throughput in pharmaceutical settings.',
+        highlights: [
+          'Connected software, analytics, and automation workflows for research environments.',
+          'Helped move experimental processes toward more scalable and repeatable execution.',
+          'Combined technical delivery with customer-facing communication and programme coordination.'
+        ],
+        stack: ['Automation', 'Pharma', 'Python', 'Data Analysis', 'Digital Transformation']
+      },
+      {
+        title: 'Wearable SERS Biosensing & Cancer Diagnostics',
+        context: 'Research translation · University of Tokyo / University of Exeter',
+        summary: 'Developed advanced nanomaterials and sensing approaches for cancer diagnostics and wearable spectroscopy applications, contributing to high-impact published research.',
+        highlights: [
+          'Worked on novel nanoparticles, biosensing, spectroscopy, and imaging methods.',
+          'Contributed to translation-oriented wearable sensing research in Tokyo.',
+          'Published in peer-reviewed journals and supported broader research commercialisation activities.'
+        ],
+        stack: ['SERS', 'Nanotechnology', 'Biosensing', 'Cancer Diagnostics', 'Research']
+      },
+      {
+        title: 'InvestIQ',
+        context: 'Public knowledge sharing · Interactive finance education',
+        summary: 'Built an independent browser-based investment toolkit featuring calculators, portfolio analysis, Monte Carlo simulation, fee and tax comparisons, and investing education content.',
+        highlights: [
+          'Designed as a self-contained educational web app with no build step.',
+          'Blended practical tooling with explainers to make investing concepts more accessible.',
+          'Showcases product thinking, front-end engineering, and public technical communication.'
+        ],
+        stack: ['HTML', 'CSS', 'JavaScript', 'React', 'Chart.js'],
+        link: 'https://pablomartinezpancorbo.github.io/investment-tooling/'
+      },
+      {
+        title: 'JLPT N5–N4 Interactive Cheatsheet',
+        context: 'Public knowledge sharing · Language learning',
+        summary: 'Created an interactive Japanese learning resource to support learners working toward JLPT N5 and N4, turning study material into a more visual and navigable experience.',
+        highlights: [
+          'Designed to make Japanese grammar and revision easier to explore online.',
+          'Reflects an educational product mindset focused on clarity and usability.',
+          'Demonstrates how technical skills can be used to disseminate knowledge publicly.'
+        ],
+        stack: ['HTML', 'JavaScript', 'Language Learning'],
+        link: 'https://pablomartinezpancorbo.github.io/Language_Learning_Sharing/JLPT_N5N4_Interactive_Cheatsheet_refined-1.html'
+      },
+      {
+        title: 'AWS Architecture Networking Explained with Ice Cream',
+        context: 'Public knowledge sharing · Cloud education',
+        summary: 'Produced a playful visual explanation of AWS networking using an ice cream shop metaphor to simplify abstract cloud architecture concepts.',
+        highlights: [
+          'Turns infrastructure concepts into an approachable analogy.',
+          'Useful as both a teaching asset and a communication artefact for non-specialists.',
+          'Demonstrates the ability to simplify complex systems without losing technical meaning.'
+        ],
+        stack: ['Draw.io', 'HTML', 'Cloud Education'],
+        link: 'https://pablomartinezpancorbo.github.io/IceCreamWorld_AWS_PMartinezPancorbo.html'
+      },
+      {
+        title: 'AWS Security Specialty Visual Quiz',
+        context: 'Public knowledge sharing · Certification learning',
+        summary: 'Built an interactive study experience to help learners understand and revise AWS security concepts for certification preparation.',
+        highlights: [
+          'Combines educational design with lightweight front-end implementation.',
+          'Focuses on retention through interaction rather than static notes alone.',
+          'Shows ability to package technical knowledge into engaging public resources.'
+        ],
+        stack: ['React', 'Tailwind', 'Vite', 'AWS Security'],
+        link: 'https://pablomartinezpancorbo.github.io/Certifications/aws-quiz/'
+      },
+      {
+        title: 'AWS SysOps Associate Visual Quiz',
+        context: 'Public knowledge sharing · Certification learning',
+        summary: 'Created an interactive web-based quiz to explain AWS Systems Operations concepts in a more intuitive and memorable way for exam candidates.',
+        highlights: [
+          'Focused on making operational cloud concepts easier to review.',
+          'Uses modern front-end tooling to improve accessibility and engagement.',
+          'Reinforces technical credibility through teaching and public resource creation.'
+        ],
+        stack: ['React', 'Tailwind', 'Vite', 'AWS SysOps'],
+        link: 'https://pablomartinezpancorbo.github.io/Certifications/aws-sysops-quiz/'
+      },
+      {
+        title: 'LLM Transformer Architecture Explained',
+        context: 'Public knowledge sharing · AI education',
+        summary: 'Created an accessible explanation of decoder-only transformer architecture for GPT-style large language models, aimed at demystifying how the core components fit together.',
+        highlights: [
+          'Breaks down a complex AI architecture into a more digestible form.',
+          'Supports knowledge sharing for both technical and less technical audiences.',
+          'Signals strong communication ability in advanced AI topics.'
+        ],
+        stack: ['Mermaid.js', 'Markdown', 'LLMs', 'AI Education'],
+        link: 'https://github.com/PabloMartinezPancorbo/pablomartinezpancorbo.github.io/blob/main/LLM_architecture_explained.md'
+      },
+      {
+        title: 'Spanish DELE A1 Practice Test',
+        context: 'Public knowledge sharing · Language learning',
+        summary: 'Built an interactive practice test for Spanish learners, extending the same educational design mindset into another language-learning context.',
+        highlights: [
+          'Designed to make self-study more engaging and structured.',
+          'Demonstrates repeatable product thinking across multiple education-focused side projects.',
+          'Adds evidence of initiative in building useful public learning tools.'
+        ],
+        stack: ['HTML', 'JavaScript', 'Language Learning'],
+        link: 'https://pablomartinezpancorbo.github.io/Language_Learning_Sharing/DELE_A1_practice.html'
+      },
+      {
+        title: 'Reinforcement Learning Snake Game',
+        context: 'Technical side project · Applied machine learning',
+        summary: 'Developed an AI agent that learns to play Snake using reinforcement learning, as a hands-on way to explore learning dynamics and decision making.',
+        highlights: [
+          'Shows curiosity-driven experimentation beyond enterprise delivery.',
+          'Useful as a compact demonstration of applied AI principles.',
+          'Adds breadth across engineering, modelling, and explainability.'
+        ],
+        stack: ['Python', 'Reinforcement Learning', 'Pygame'],
+        link: 'https://github.com/PabloMartinezPancorbo/snakeproject/'
+      }
+    ];
+
+    const SCHOLAR = 'https://scholar.google.co.uk/citations?user=CJyscLwAAAAJ';
+    const LINKEDIN = 'https://www.linkedin.com/in/pablomartinezpancorbo';
+    const GITHUB   = 'https://github.com/PabloMartinezPancorbo';
+    const EMAIL    = 'mailto:pablomartinezpancorbo@gmail.com';
+    const PHONE    = 'tel:+447460451123';
+
+    /* ═══════════════════════════════════════════════
+       SVG ICONS
+    ═══════════════════════════════════════════════ */
+    const ILinkedIn = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>;
+    const IGitHub   = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.866-.013-1.7-2.782.603-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>;
+    const IScholar  = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z"/></svg>;
+    const IEduCap   = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3L1.5 8.5 12 14l8.5-4.45V15h2V8.5L12 3zm-6 8.5v3.2C6 16.9 8.9 19 12 19s6-2.1 6-4.3v-3.2L12 15 6 11.5z"/></svg>;
+    const IChipMono = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M9 3v2H7a2 2 0 0 0-2 2v2H3v2h2v2H3v2h2v2a2 2 0 0 0 2 2h2v2h2v-2h2v2h2v-2h2a2 2 0 0 0 2-2v-2h2v-2h-2v-2h2v-2h-2V7a2 2 0 0 0-2-2h-2V3h-2v2h-2V3H9zm-2 4h10v10H7V7zm2 2v6h6V9H9z"/></svg>;
+    const IBoltMono = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L5 13h5l-1 9 8-11h-5l1-9z"/></svg>;
+    const IAtomMono = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="2.2" fill="currentColor"/><ellipse cx="12" cy="12" rx="8.5" ry="3.5"/><ellipse cx="12" cy="12" rx="8.5" ry="3.5" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="8.5" ry="3.5" transform="rotate(120 12 12)"/></svg>;
+    const IFlaskMono = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M9 3v2l1 1v4.2L4.8 19A2 2 0 0 0 6.5 22h11a2 2 0 0 0 1.7-3L14 10.2V6l1-1V3H9zm2 3h2v4.8l5.2 8.2H5.8l5.2-8.2V6z"/></svg>;
+    const ICertCloudMono = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18 10a5 5 0 0 0-9.7-1.7A4 4 0 0 0 8 16h10a3 3 0 0 0 0-6z"/></svg>;
+    const ICertAwardMono = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.2 4.5 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5L4.8 7.2l5-.7L12 2zm-4 14h2l-2 6 4-3 4 3-2-6h2l1.2 3.5L12 22l-5.2-2.5L8 16z"/></svg>;
+    const IEmail    = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/></svg>;
+    const IPhone    = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>;
+    const IPrint    = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>;
+    const ISun      = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>;
+    const IMoon     = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>;
+
+    /* Icon button with tooltip */
+    const IC = ({ href, Icon, tip, onClick }) => (
+      <div className="ic-wrap">
+        <a href={href}
+           target={href.startsWith('mailto')||href.startsWith('tel')?'_self':'_blank'}
+           rel="noopener noreferrer"
+           onClick={onClick}
+           className="flex items-center justify-center w-9 h-9 rounded-full border border-gray-300 text-gray-500 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-all"
+           style={{display:'flex'}}>
+          <Icon />
+        </a>
+        <span className="ic-tip">{tip}</span>
+      </div>
+    );
+
+    /* ═══════════════════════════════════════════════
+       SKILL CHART (radar — same as original)
+    ═══════════════════════════════════════════════ */
+    const SkillChart = ({ skills, dark }) => {
+      const ctx = useRef(null);
+      useEffect(() => {
+        const chart = new Chart(ctx.current, {
+          type: 'radar',
+          data: {
+            labels: skills.map(s => s.name),
+            datasets: [{
+              label: 'Proficiency',
+              data: skills.map(s => s.level),
+              backgroundColor: 'rgba(59,130,246,0.15)',
+              borderColor:     'rgba(59,130,246,0.9)',
+              pointBackgroundColor: '#3b82f6',
+              borderWidth: 2,
+            }],
+          },
+          options: {
+            scales: {
+              r: {
+                min: 0, max: 10,
+                ticks: {
+                  stepSize: 2,
+                  color: dark ? '#9ca3af' : '#6b7280',
+                  backdropColor: 'transparent',
+                  font: { size: 10 },
+                },
+                grid:        { color: dark ? 'rgba(255,255,255,.1)' : 'rgba(0,0,0,.08)' },
+                angleLines:  { color: dark ? 'rgba(255,255,255,.1)' : 'rgba(0,0,0,.08)' },
+                pointLabels: { color: dark ? '#e5e7eb' : '#374151', font: { size: 11 } },
+              },
+            },
+            plugins: { legend: { display: false } },
+          },
+        });
+        return () => chart.destroy();
+      }, [skills, dark]);
+      return <canvas ref={ctx} style={{ maxHeight: '400px' }}></canvas>;
+    };
+
+    /* ═══════════════════════════════════════════════
+       SKILL BARS
+    ═══════════════════════════════════════════════ */
+    const SkillBars = ({ dark }) => {
+      const ref = useRef(null);
+      useEffect(() => {
+        const t = setTimeout(() => {
+          ref.current && ref.current.querySelectorAll('.bar-fill').forEach(b => {
+            b.style.width = b.dataset.p + '%';
+          });
+        }, 100);
+        return () => clearTimeout(t);
+      }, []);
+      return (
+        <div ref={ref} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {barSkills.map((cat, ci) => (
+            <div key={ci}>
+              <p className="text-xs font-semibold text-blue-600 uppercase tracking-wider mb-3">{cat.cat}</p>
+              {cat.items.map((s, si) => (
+                <div key={si} className="mb-3">
+                  <div className="flex justify-between mb-1">
+                    <span className="text-sm font-medium text-gray-700 dm-text2">{s.n}</span>
+                    <span className="text-xs text-gray-400 dm-muted">{s.p}%</span>
+                  </div>
+                  <div className="w-full rounded-full dm-bartr" style={{ height: '8px', background: dark ? '#374151' : '#e5e7eb' }}>
+                    <div className="bar-fill" data-p={s.p} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      );
+    };
+
+    /* ═══════════════════════════════════════════════
+       EXPERIENCE TIMELINE
+    ═══════════════════════════════════════════════ */
+    const TlItem = ({ exp, dark }) => {
+      const [open, setOpen] = useState(false);
+      return (
+        <div className="tl-outer pb-6">
+          <div className="tl-line" />
+          <div className="tl-dot dm-tldot" />
+          <div className="bg-white dm-card rounded-lg shadow-md p-5">
+            <div className="flex flex-wrap justify-between gap-2">
+              <div>
+                <h3 className="font-bold text-xl text-gray-800 dm-text mb-1 leading-tight">
+                  {String(exp.role).includes('|')
+                    ? String(exp.role).split('|').map((part, idx, arr) => (
+                        <React.Fragment key={idx}>
+                          {part}
+                          {idx < arr.length - 1 ? <br /> : null}
+                        </React.Fragment>
+                      ))
+                    : exp.role}
+                </h3>
+                <p className="text-blue-600 font-semibold text-sm">{exp.company}</p>
+              </div>
+              <div className="text-right flex-shrink-0">
+                <span className="text-sm font-normal text-gray-400 dm-muted font-mono block">{exp.period}</span>
+                <span className="text-xs text-gray-400 dm-muted block mt-0.5">{exp.location}</span>
+              </div>
+            </div>
+            <p className="text-base text-gray-500 dm-text2 mt-2 leading-relaxed">{exp.description}</p>
+            {exp.bullets.length > 0 && open && (
+              <ul className="mt-2 space-y-1">
+                {exp.bullets.map((b, i) => (
+                  <li key={i} className="text-sm text-gray-500 dm-text2 leading-relaxed pl-4 relative">
+                    <span className="absolute left-0 text-blue-400">›</span>{b}
+                  </li>
+                ))}
+              </ul>
+            )}
+            {exp.bullets.length > 0 && (
+              <button
+                onClick={() => setOpen(!open)}
+                className="mt-2 text-xs text-blue-500 hover:text-blue-700 font-medium focus:outline-none">
+                {open ? '▲ Show less' : `▼ ${exp.bullets.length} more bullet${exp.bullets.length > 1 ? 's' : ''}`}
+              </button>
+            )}
+            <div className="flex flex-wrap mt-3">
+              {exp.tags.map((t, i) => <span key={i} className="tag-pill">{t}</span>)}
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const ExperienceTimeline = ({ experiences, dark }) => (
+      <div className="relative">
+        {experiences.map((exp, i) => <TlItem key={i} exp={exp} dark={dark} />)}
+      </div>
+    );
+
+    /* ═══════════════════════════════════════════════
+       PUBLICATIONS (same structure as original)
+    ═══════════════════════════════════════════════ */
+    const Publications = ({ publications, copied, onCopy }) => (
+      <div className="space-y-4">
+        {publications.map((pub, i) => (
+          <div key={i} className="bg-white dm-card p-5 rounded-lg shadow dm-pubrow">
+            <h3 className="font-semibold text-gray-800 dm-text leading-snug">{pub.title}</h3>
+            <p className="text-sm text-gray-600 dm-text2 mt-1 italic">{pub.authors}</p>
+            <p className="text-sm text-gray-500 dm-muted italic mt-0.5">{pub.journal}</p>
+            <div className="flex items-center gap-3 mt-3">
+              <a href={SCHOLAR} target="_blank" rel="noopener noreferrer"
+                 className="text-xs text-blue-500 hover:underline">View on Scholar ↗</a>
+              <button
+                onClick={() => onCopy(i)}
+                className={`text-xs px-3 py-1 rounded-full border transition-all ${
+                  copied === i
+                    ? 'border-green-400 text-green-600 bg-green-50'
+                    : 'border-gray-300 text-gray-500 hover:border-blue-400 hover:text-blue-500'
+                }`}>
+                {copied === i ? '✓ Copied!' : 'Copy citation'}
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+
+    const EducationIcon = ({ type }) => {
+      const common = "text-gray-500";
+      if (type === 'cap') return <span className={common}><IEduCap /></span>;
+      if (type === 'chip') return <span className={common}><IChipMono /></span>;
+      if (type === 'bolt') return <span className={common}><IBoltMono /></span>;
+      if (type === 'atom') return <span className={common}><IAtomMono /></span>;
+      if (type === 'flask') return <span className={common}><IFlaskMono /></span>;
+      return <span className={common}><IEduCap /></span>;
+    };
+
+    const Projects = ({ projects, dark }) => (
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {projects.map((p, i) => (
+          <div key={i} className="bg-white dm-card p-5 rounded-lg shadow-md border dm-border"
+               style={{ borderColor: dark ? '#374151' : '#f3f4f6' }}>
+            <div className="flex items-start justify-between gap-3 mb-3">
+              <div>
+                <h3 className="font-bold text-gray-800 dm-text leading-snug">{p.title}</h3>
+                <p className="text-sm text-blue-600 font-medium mt-1">{p.context}</p>
+              </div>
+              {p.link && (
+                <a href={p.link} target="_blank" rel="noopener noreferrer"
+                   className="text-xs px-3 py-1 rounded-full border border-blue-200 text-blue-600 hover:bg-blue-50 whitespace-nowrap">
+                  View
+                </a>
+              )}
+            </div>
+            <p className="text-sm text-gray-600 dm-text2 leading-relaxed mb-3">{p.summary}</p>
+            <ul className="space-y-2 mb-4">
+              {p.highlights.map((h, j) => (
+                <li key={j} className="text-sm text-gray-600 dm-text2 pl-4 relative leading-relaxed">
+                  <span className="absolute left-0 text-blue-400">•</span>{h}
+                </li>
+              ))}
+            </ul>
+            <div className="flex flex-wrap">
+              {p.stack.map((t, j) => <span key={j} className="tag-pill">{t}</span>)}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+
+    /* ═══════════════════════════════════════════════
+       APP
+    ═══════════════════════════════════════════════ */
+    const App = () => {
+      const [activeTab, setActiveTab] = useState('skills');
+      const [dark, setDark]           = useState(false);
+      const [copied, setCopied]       = useState(null);
+
+      useEffect(() => {
+        document.getElementById('cv-body').className =
+          (dark ? 'dark ' : '') + 'bg-gray-100 dm-bg';
+      }, [dark]);
+
+      const copyCite = (i) => {
+        const p = publications[i];
+        navigator.clipboard && navigator.clipboard.writeText(
+          `${p.authors} "${p.title}." ${p.journal}.`
+        ).then(() => { setCopied(i); setTimeout(() => setCopied(null), 2000); });
+      };
+
+      const TABS = [
+        { id: 'about',          label: 'About'          },
+        { id: 'skills',         label: 'Skills'         },
+        { id: 'experience',     label: 'Experience'     },
+        { id: 'education',      label: 'Education'      },
+        { id: 'certifications', label: 'Certifications' },
+        { id: 'projects',       label: 'Projects'       },
+        { id: 'publications',   label: 'Publications'   },
+      ];
+
+      return (
+        <div className="container mx-auto p-4 sm:p-8">
+
+          {/* ── HEADER ── */}
+          <header className="text-center mb-10 relative no-print">
+            {/* Dark mode toggle — top right */}
+            <div className="absolute top-0 right-0">
+              <button
+                onClick={() => setDark(!dark)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-medium transition-all"
+                style={{
+                  borderColor: dark ? '#facc15' : '#d1d5db',
+                  color:       dark ? '#facc15' : '#6b7280',
+                  background:  dark ? '#1f2937' : '#ffffff',
+                }}>
+                {dark ? <ISun /> : <IMoon />}
+                {dark ? 'Light' : 'Dark'}
+              </button>
+            </div>
+
+            <h1 className="text-4xl font-bold mb-2 dm-text" style={{ color: dark ? '#f9fafb' : '#1f2937' }}>
+              Dr. Pablo Martinez Pancorbo
+            </h1>
+            <p className="text-xl text-gray-600 dm-text2 mb-1">
+              Cloud &amp; AI Transformation Leader
+            </p>
+            <p className="text-sm text-gray-400 dm-muted mb-5">
+              Driving Multibillion-Dollar Impact · AWS · Azure · GCP
+            </p>
+
+            {/* Icon contact bar */}
+            <div className="flex items-center justify-center gap-2 flex-wrap">
+              <IC href={LINKEDIN} Icon={ILinkedIn} tip="LinkedIn" />
+              <IC href={GITHUB}   Icon={IGitHub}   tip="GitHub" />
+              <IC href={SCHOLAR}  Icon={IScholar}  tip="Google Scholar" />
+              <IC href={EMAIL}    Icon={IEmail}    tip="Email" />
+              <div className="ic-wrap">
+                <button
+                  onClick={() => window.print()}
+                  className="flex items-center justify-center w-9 h-9 rounded-full border border-gray-300 text-gray-500 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-all">
+                  <IPrint />
+                </button>
+                <span className="ic-tip">Download PDF</span>
+              </div>
+            </div>
+          </header>
+
+          {/* ── NAV (scrollable on mobile) ── */}
+          <div className="nav-scroll mb-8 no-print">
+            <div className="nav-inner justify-center mx-auto" style={{ width: 'max-content', margin: '0 auto' }}>
+              {TABS.map(t => (
+                <button
+                  key={t.id}
+                  className={`mx-1 px-4 py-2 rounded text-sm font-medium transition-colors whitespace-nowrap ${
+                    activeTab === t.id
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-gray-200 dm-nav-off text-gray-700 hover:bg-gray-300'
+                  }`}
+                  onClick={() => setActiveTab(t.id)}>
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* ── MAIN CONTENT ── */}
+          <main>
+
+            {/* ABOUT */}
+            {activeTab === 'about' && (
+              <div className="bg-white dm-card p-6 rounded-lg shadow-md fade-in">
+                <h2 className="text-2xl font-bold mb-4 dm-text" style={{ color: dark ? '#f9fafb' : '#1f2937' }}>
+                  Professional Summary
+                </h2>
+                <p className="text-gray-600 dm-text2 leading-relaxed mb-3">
+                  Cloud &amp; AI leader with <strong className="text-blue-600">10+ years of experience</strong> in Cloud Computing,
+                  Data Science, Machine Learning, and R&amp;D. Proven track record of driving innovation, accelerating large
+                  cloud migrations, leading responsible enterprise-scale digital transformations, directing pre-sales and
+                  delivering high-impact, high-ROI business outcomes across{' '}
+                  <strong className="text-blue-600">AWS, Azure and GCP ecosystems</strong>.
+                </p>
+                <p className="text-gray-600 dm-text2 leading-relaxed mb-6">
+                  Skilled in leading cross-functional teams composed of technical, product and business personas in Agile,
+                  DevOps, and CI/CD environments. Actively pursuing strategic, high-impact roles with premium compensation
+                  and long-term growth potential.
+                </p>
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+                  {[
+                    { n: '10+',   l: 'Years in tech & R&D'    },
+                    { n: '$170M+',l: 'Cloud budget managed'   },
+                    { n: '8',     l: 'Publications'          },
+                    { n: '244',   l: 'Google Scholar citations' },
+                    { n: '8+',    l: 'Certifications'         },
+                  ].map((s, i) => (
+                    <div key={i} className="dm-statbg bg-blue-50 rounded-lg p-4 text-center">
+                      <div className="text-2xl font-bold text-blue-600">{s.n}</div>
+                      <div className="text-xs text-gray-500 dm-muted mt-1">{s.l}</div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mb-6">
+                  <p className="text-xs font-semibold text-blue-600 uppercase tracking-wider mb-3">Selected Impact Areas</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {[
+                      {
+                        t: 'Cloud Transformation',
+                        d: 'Led and supported enterprise cloud transformation programmes spanning strategy, operating model evolution, architecture alignment, and value-focused execution.'
+                      },
+                      {
+                        t: 'FinOps & Cost Optimisation',
+                        d: 'Drove FinOps best practices, cloud cost optimisation, and governance mechanisms across large customer environments to improve ROI and accountability.'
+                      },
+                      {
+                        t: 'Cloud Migration & Modernisation',
+                        d: 'Accelerated cloud migration and modernisation initiatives through stakeholder alignment, delivery coordination, cloud-native patterns, and adoption planning.'
+                      },
+                      {
+                        t: 'AI Prototyping',
+                        d: 'Built and guided proof of concepts, proof of values, interactive demos, and customer-facing prototypes to validate technical and commercial outcomes.'
+                      },
+                      {
+                        t: 'AI Production Strategy',
+                        d: 'Helped define how AI solutions move from experimentation into production, with attention to governance, reliability, scale, observability, and business value.'
+                      },
+                      {
+                        t: 'Full MLOps Orchestration',
+                        d: 'Worked across model development, pipelines, deployment, monitoring, experimentation, and continuous improvement using cloud-native and DevOps-aligned practices.'
+                      },
+                      {
+                        t: 'Agentic AI',
+                        d: 'Led and supported enterprise discussions, prototypes, and solution patterns around agentic AI, orchestration, tool use, retrieval, and governed GenAI delivery.'
+                      },
+                      {
+                        t: 'Laboratory Automation & Advanced R&D',
+                        d: 'Led scientific automation and research-driven innovation programmes, including pharma experimentation workflows, wearable sensing, and cancer diagnostics research.'
+                      },
+                    ].map((x, i) => (
+                      <div key={i} className="p-4 rounded-lg border dm-border"
+                           style={{ borderColor: dark ? '#374151' : '#e5e7eb' }}>
+                        <h3 className="font-semibold text-sm mb-1 dm-text">{x.t}</h3>
+                        <p className="text-sm text-gray-600 dm-text2 leading-relaxed">{x.d}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <p className="text-xs font-semibold text-blue-600 uppercase tracking-wider mb-2">Keywords</p>
+                <div className="flex flex-wrap">
+                  {techTags.map((t, i) => <span key={i} className="tag-pill">{t}</span>)}
+                </div>
+              </div>
+            )}
+
+            {/* SKILLS */}
+            {activeTab === 'skills' && (
+              <div className="space-y-6 fade-in">
+                <div className="bg-white dm-card p-6 rounded-lg shadow-md">
+                  <h2 className="text-2xl font-bold mb-1 dm-text" style={{ color: dark ? '#f9fafb' : '#1f2937' }}>
+                    Skills
+                  </h2>
+                  <p className="text-xs text-gray-400 dm-muted mb-4">Spider chart — relative proficiency out of 10</p>
+                  <SkillChart skills={skills} dark={dark} />
+                </div>
+                <div className="bg-white dm-card p-6 rounded-lg shadow-md">
+                  <h2 className="text-2xl font-bold mb-4 dm-text" style={{ color: dark ? '#f9fafb' : '#1f2937' }}>
+                    Technical Proficiency
+                  </h2>
+                  <SkillBars dark={dark} />
+                </div>
+              </div>
+            )}
+
+            {/* EXPERIENCE */}
+            {activeTab === 'experience' && (
+              <div className="bg-white dm-card p-6 rounded-lg shadow-md fade-in">
+                <h2 className="text-2xl font-bold mb-6 dm-text" style={{ color: dark ? '#f9fafb' : '#1f2937' }}>
+                  Experience
+                </h2>
+                <ExperienceTimeline experiences={experiences} dark={dark} />
+              </div>
+            )}
+
+            {/* EDUCATION */}
+            {activeTab === 'education' && (
+              <div className="bg-white dm-card p-6 rounded-lg shadow-md fade-in">
+                <h2 className="text-2xl font-bold mb-6 dm-text" style={{ color: dark ? '#f9fafb' : '#1f2937' }}>
+                  Education
+                </h2>
+                <div className="space-y-4">
+                  {education.map((e, i) => (
+                    <div key={i} className="flex gap-4 p-4 rounded-lg border dm-border"
+                         style={{ borderColor: dark ? '#374151' : '#f3f4f6' }}>
+                      <div className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center"
+                           style={{ background: dark ? '#1f2937' : '#f3f4f6' }}>
+                        <EducationIcon type={e.icon} />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-gray-800 dm-text leading-tight">{e.deg}</h3>
+                        <p className="text-blue-600 font-semibold text-sm mt-0.5">{e.school}</p>
+                        <p className="text-xs text-gray-400 dm-muted mt-0.5">{e.period} · {e.loc}</p>
+                        <p className="text-sm text-gray-500 dm-text2 mt-1">{e.note}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* CERTIFICATIONS */}
+            {activeTab === 'certifications' && (
+              <div className="bg-white dm-card p-6 rounded-lg shadow-md fade-in">
+                <h2 className="text-2xl font-bold mb-6 dm-text" style={{ color: dark ? '#f9fafb' : '#1f2937' }}>
+                  Certifications
+                </h2>
+                <div className="space-y-3">
+                  {certifications.map((c, i) => (
+                    <div key={i} className="flex items-center justify-between p-4 rounded-lg border dm-border"
+                         style={{ borderColor: dark ? '#374151' : '#f3f4f6' }}>
+                      <div className="flex items-center gap-3">
+                        <span className="text-gray-500 flex-shrink-0">
+                          {c.n.startsWith('AWS') ? <ICertCloudMono /> : <ICertAwardMono />}
+                        </span>
+                        <span className="font-medium text-sm text-gray-700 dm-text2">{c.n}</span>
+                      </div>
+                      <span className="text-xs text-gray-400 dm-muted font-mono flex-shrink-0 ml-4">{c.d}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-5 p-4 rounded-lg"
+                     style={{ background: dark ? '#1f2937' : '#f9fafb' }}>
+                  <p className="text-sm font-semibold" style={{ color: dark ? '#e5e7eb' : '#374151' }}>
+                    8+ Certifications — including 7 AWS certifications
+                  </p>
+                  <p className="text-xs mt-1" style={{ color: dark ? '#9ca3af' : '#6b7280' }}>
+                    AWS Solutions Architecture · Machine Learning Specialty · Data Engineering · Developer Associate · CloudOps · AI Practitioner
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* PROJECTS */}
+            {activeTab === 'projects' && (
+              <div className="space-y-5 fade-in">
+                <div className="bg-white dm-card p-6 rounded-lg shadow-md">
+                  <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
+                    <h2 className="text-2xl font-bold dm-text" style={{ color: dark ? '#f9fafb' : '#1f2937' }}>
+                      Selected Projects
+                    </h2>
+                    <p className="text-sm text-gray-400 dm-muted">Strategic delivery, public educational tools, and knowledge sharing builds</p>
+                  </div>
+                  <Projects projects={projects} dark={dark} />
+                </div>
+              </div>
+            )}
+
+            {/* PUBLICATIONS */}
+            {activeTab === 'publications' && (
+              <div className="bg-white dm-card p-6 rounded-lg shadow-md fade-in">
+                <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
+                  <h2 className="text-2xl font-bold dm-text" style={{ color: dark ? '#f9fafb' : '#1f2937' }}>
+                    Selected Publications
+                  </h2>
+                  <a href={SCHOLAR} target="_blank" rel="noopener noreferrer"
+                     className="flex items-center gap-2 text-sm text-blue-600 hover:underline font-medium">
+                    <IScholar /> All on Google Scholar ↗
+                  </a>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                  {[
+                    { n: '8',   l: 'Publications' },
+                    { n: '244', l: 'Citations' },
+                    { n: 'Google Scholar', l: 'Profile' },
+                  ].map((s, i) => (
+                    <div key={i} className="dm-statbg bg-blue-50 rounded-lg p-4 text-center">
+                      <div className="text-2xl font-bold text-blue-600">{s.n}</div>
+                      <div className="text-xs text-gray-500 dm-muted mt-1">{s.l}</div>
+                    </div>
+                  ))}
+                </div>
+                <Publications publications={publications} copied={copied} onCopy={copyCite} />
+              </div>
+            )}
+
+          </main>
+        </div>
+      );
+    };
+
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
+</body>
+</html>
